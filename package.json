@@ -1,0 +1,42 @@
+{
+  "name": "payroll-system-backend",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "prisma:seed": "ts-node src/prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "ts-node src/prisma/seed.ts"
+  },
+  "keywords": ["payroll", "management", "system", "postgresql", "prisma"],
+  "author": "",
+  "license": "ISC",
+  "description": "Payroll Management System Backend with PostgreSQL, Prisma, Express, and TypeScript",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "helmet": "^8.0.0",
+    "express-validator": "^7.2.2",
+    "compression": "^1.7.5",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/node": "^22.10.5",
+    "@types/compression": "^1.7.6",
+    "@types/morgan": "^1.9.9",
+    "typescript": "^5.7.3",
+    "prisma": "^5.22.0",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2"
+  }
+}

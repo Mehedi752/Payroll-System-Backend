@@ -1,0 +1,172 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum EmployeeType {
+  TEACHER
+  OFFICER
+  STAFF
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum PayrollStatus {
+  PAID
+  PENDING
+}
+
+enum ShiftType {
+  MORNING
+  EVENING
+  NIGHT
+}
+
+// Base Employee Model
+model Employee {
+  id            String         @id @default(uuid())
+  name          String
+  age           Int
+  phone         String         @unique
+  email         String         @unique
+  designation   String
+  employeeType  EmployeeType
+  basicSalary   Float
+  joiningDate   DateTime
+  status        EmployeeStatus @default(ACTIVE)
+  avatar        String?
+  
+  // Allowances (stored as JSON)
+  houseRent     Float          @default(0)
+  medical       Float          @default(0)
+  transport     Float          @default(0)
+  education     Float          @default(0)
+  special       Float          @default(0)
+  
+  // Deductions (stored as JSON)
+  tax           Float          @default(0)
+  providentFund Float          @default(0)
+  insurance     Float          @default(0)
+  loan          Float          @default(0)
+  other         Float          @default(0)
+  
+  // Relationships
+  teacher       Teacher?
+  officer       Officer?
+  staff         Staff?
+  payrolls      Payroll[]
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  @@index([employeeType])
+  @@index([status])
+  @@index([email])
+}
+
+// Teacher specific data
+model Teacher {
+  id            String   @id @default(uuid())
+  employeeId    String   @unique
+  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  faculty       String
+  department    String
+  researchArea  String?
+  publications  Int?     @default(0)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([department])
+  @@index([faculty])
+}
+
+// Officer specific data
+model Officer {
+  id               String   @id @default(uuid())
+  employeeId       String   @unique
+  employee         Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  office           String
+  responsibilities String[] // Array of strings
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  @@index([office])
+}
+
+// Staff specific data
+model Staff {
+  id         String    @id @default(uuid())
+  employeeId String    @unique
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  section    String
+  shift      ShiftType
+  
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  
+  @@index([section])
+  @@index([shift])
+}
+
+// Payroll Model
+model Payroll {
+  id           String        @id @default(uuid())
+  employeeId   String
+  employee     Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  month        Int           // 1-12
+  year         Int
+  
+  // Salary breakdown
+  basicSalary  Float
+  houseRent    Float
+  medical      Float
+  transport    Float
+  education    Float
+  special      Float
+  
+  tax          Float
+  providentFund Float
+  insurance    Float
+  loan         Float
+  other        Float
+  
+  grossSalary  Float
+  netSalary    Float
+  
+  status       PayrollStatus @default(PENDING)
+  paidAt       DateTime?
+  
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  
+  @@unique([employeeId, month, year])
+  @@index([month, year])
+  @@index([status])
+}
+
+// Settings Model (for system configuration)
+model Settings {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
